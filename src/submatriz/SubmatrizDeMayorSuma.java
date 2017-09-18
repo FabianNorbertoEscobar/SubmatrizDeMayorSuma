@@ -16,8 +16,10 @@ public class SubmatrizDeMayorSuma extends EjercicioOIA {
 	private int columnas;
 
 	private int sumaMax;
-	private int iMax;
-	private int jMax;
+	private int iInicial;
+	private int jInicial;
+	private int iFinal;
+	private int jFinal;
 
 	public SubmatrizDeMayorSuma(File entrada, File salida) {
 		super(entrada, salida);
@@ -46,7 +48,7 @@ public class SubmatrizDeMayorSuma extends EjercicioOIA {
 	@Override
 	public void resolver() {
 		this.calcularSumasAcumuladas();
-
+		this.encontrarSubmatriz();
 		this.grabarSalida();
 	}
 
@@ -63,10 +65,34 @@ public class SubmatrizDeMayorSuma extends EjercicioOIA {
 				if (i > 0 && j > 0) {
 					this.sumas[i][j] -= this.sumas[i - 1][j - 1];
 				}
-				if (sumas[i][j] > this.sumaMax) {
-					this.sumaMax = this.sumas[i][j];
-					this.iMax = i;
-					this.jMax = j;
+			}
+		}
+	}
+
+	private void encontrarSubmatriz() {
+		int sumaSubmatriz;
+		for (int iInicial = 0; iInicial < this.filas; iInicial++) {
+			for (int jInicial = 0; jInicial < this.columnas; jInicial++) {
+				for (int iFinal = iInicial + 1; iFinal < this.filas; iFinal++) {
+					for (int jFinal = jInicial; jFinal < this.columnas; jFinal++) {
+						sumaSubmatriz = this.sumas[iFinal][jFinal];
+						if (jInicial - 1 > 0) {
+							sumaSubmatriz -= this.sumas[iFinal][jInicial - 1];
+						}
+						if (iInicial - 1 > 0) {
+							sumaSubmatriz -= this.sumas[iInicial - 1][jFinal];
+						}
+						if (iInicial - 1 > 0 && jInicial - 1 > 0) {
+							sumaSubmatriz += this.sumas[iInicial - 1][jInicial - 1];
+						}
+						if (sumaSubmatriz > this.sumaMax) {
+							this.sumaMax = sumaSubmatriz;
+							this.iInicial = iInicial;
+							this.jInicial = jInicial;
+							this.iFinal = iFinal;
+							this.jFinal = jFinal;
+						}
+					}
 				}
 			}
 		}
@@ -77,12 +103,14 @@ public class SubmatrizDeMayorSuma extends EjercicioOIA {
 			BufferedWriter buffer = new BufferedWriter(new FileWriter(this.salida));
 			buffer.write(String.valueOf(this.sumaMax));
 			buffer.newLine();
-			buffer.write(String.valueOf(this.iMax) + " " + String.valueOf(this.jMax));
+			buffer.write(this.iInicial + " " + this.jInicial);
+			buffer.newLine();
+			buffer.write(this.iFinal + " " + this.jFinal);
 			buffer.newLine();
 
-			for (int i = 0; i <= this.iMax; i++) {
-				for (int j = 0; j <= this.jMax; j++) {
-					buffer.write(this.sumas[i][j] + " ");
+			for (int i = this.iInicial; i <= this.iFinal; i++) {
+				for (int j = this.jInicial; j <= this.jFinal; j++) {
+					buffer.write(this.matriz[i][j] + " ");
 				}
 				buffer.newLine();
 			}
